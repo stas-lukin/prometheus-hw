@@ -1,117 +1,99 @@
-# Домашнее задание к занятию "`Название занятия`" - `Фамилия и имя студента`
-
-
+# Домашнее задание к занятию "Система мониторинга Prometheus" — Лукин Станислав
 ### Инструкция по выполнению домашнего задания
-
-   1. Сделайте `fork` данного репозитория к себе в Github и переименуйте его по названию или номеру занятия, например, https://github.com/имя-вашего-репозитория/git-hw или  https://github.com/имя-вашего-репозитория/7-1-ansible-hw).
-   2. Выполните клонирование данного репозитория к себе на ПК с помощью команды `git clone`.
-   3. Выполните домашнее задание и заполните у себя локально этот файл README.md:
-      - впишите вверху название занятия и вашу фамилию и имя
-      - в каждом задании добавьте решение в требуемом виде (текст/код/скриншоты/ссылка)
-      - для корректного добавления скриншотов воспользуйтесь [инструкцией "Как вставить скриншот в шаблон с решением](https://github.com/netology-code/sys-pattern-homework/blob/main/screen-instruction.md)
-      - при оформлении используйте возможности языка разметки md (коротко об этом можно посмотреть в [инструкции  по MarkDown](https://github.com/netology-code/sys-pattern-homework/blob/main/md-instruction.md))
-   4. После завершения работы над домашним заданием сделайте коммит (`git commit -m "comment"`) и отправьте его на Github (`git push origin`);
-   5. Для проверки домашнего задания преподавателем в личном кабинете прикрепите и отправьте ссылку на решение в виде md-файла в вашем Github.
-   6. Любые вопросы по выполнению заданий спрашивайте в чате учебной группы и/или в разделе “Вопросы по заданию” в личном кабинете.
-   
-Желаем успехов в выполнении домашнего задания!
-   
-### Дополнительные материалы, которые могут быть полезны для выполнения задания
-
-1. [Руководство по оформлению Markdown файлов](https://gist.github.com/Jekins/2bf2d0638163f1294637#Code)
-
+(оставьте здесь текст инструкции из шаблона, если он был)
 ---
-
-### Задание 1
-
-`Приведите ответ в свободной форме........`
-
-1. `Заполните здесь этапы выполнения, если требуется ....`
-2. `Заполните здесь этапы выполнения, если требуется ....`
-3. `Заполните здесь этапы выполнения, если требуется ....`
-4. `Заполните здесь этапы выполнения, если требуется ....`
-5. `Заполните здесь этапы выполнения, если требуется ....`
-6. 
-
-```
-Поле для вставки кода...
-....
-....
-....
-....
-```
-
-`При необходимости прикрепитe сюда скриншоты
-![Название скриншота 1](ссылка на скриншот 1)`
-
-
+## Задание 1. Установка Prometheus
+**Решение:**
+1. Создал пользователя `prometheus`:
+   ```bash
+   sudo useradd --no-create-home --shell /bin/false prometheus
+    Скачал и распаковал Prometheus версии 3.9.1:
+   cd /tmp
+    wget https://github.com/prometheus/prometheus/releases/download/v3.9.1/prometheus-3.9.1.linux-amd64.tar.gz
+    tar xvf prometheus-3.9.1.linux-amd64.tar.gz
+    cd prometheus-3.9.1.linux-amd64
+    Создал директории и скопировал файлы:
+    sudo mkdir /etc/prometheus /var/lib/prometheus
+    sudo cp prometheus promtool /usr/local/bin/
+    sudo cp -r consoles/ console_libraries/ /etc/prometheus/
+    sudo cp prometheus.yml /etc/prometheus/
+    sudo chown -R prometheus:prometheus /etc/prometheus /var/lib/prometheus /usr/local/bin/prometheus /usr/local/bin/promtool
+    Создал systemd-сервис /etc/systemd/system/prometheus.service:
+    [Unit]
+    Description=Prometheus Service Netology Lesson 9.4 — Лукин Станислав
+    After=network.target
+    [Service]
+    User=prometheus
+    Group=prometheus
+    Type=simple
+    ExecStart=/usr/local/bin/prometheus \
+        --config.file=/etc/prometheus/prometheus.yml \
+        --storage.tsdb.path=/var/lib/prometheus/
+    [Install]
+    WantedBy=multi-user.target
+    Запустил и проверил работу:
+    sudo systemctl daemon-reload
+    sudo systemctl start prometheus
+    sudo systemctl enable prometheus
+    sudo systemctl status prometheus
+Скриншот:
+![Скриншот]![Скриншот]![Скриншот](images/prometheus-status.png
+Задание 2. Установка Node Exporter
+Решение:
+    Скачал и распаковал Node Exporter версии 1.8.2:
+   cd /tmp
+    wget https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+    tar xvf node_exporter-1.8.2.linux-amd64.tar.gz
+    cd node_exporter-1.8.2.linux-amd64
+    Скопировал бинарный файл и создал пользователя:
+    sudo cp node_exporter /usr/local/bin/
+    sudo useradd --no-create-home --shell /bin/false node_exporter
+    Создал systemd-сервис /etc/systemd/system/node-exporter.service:
+    [Unit]
+    Description=Node Exporter Netology Lesson 9.4 — Лукин Станислав
+    After=network.target
+    [Service]
+    User=node_exporter
+    Group=node_exporter
+    Type=simple
+    ExecStart=/usr/local/bin/node_exporter
+    [Install]
+    WantedBy=multi-user.target
+    Запустил и проверил:
+    sudo systemctl daemon-reload
+    sudo systemctl start node-exporter
+    sudo systemctl enable node-exporter
+    sudo systemctl status node-exporter
+Скриншот:
+![Скриншот]![Скриншот]![Скриншот](images/node-exporter-status.png
+Задание 3. Подключение Node Exporter к Prometheus
+Решение:
+    Отредактировал конфигурационный файл /etc/prometheus/prometheus.yml:
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+      - job_name: "prometheus"
+        static_configs:
+          - targets: ["localhost:9090"]
+      - job_name: "node"
+        static_configs:
+          - targets: ["localhost:9100"]
+    Перезапустил Prometheus:
+    sudo systemctl restart prometheus
+    Проверил в веб-интерфейсе:
+        Конфигурация: http://10.0.2.15:9090/config
+        Цели: http://10.0.2.15:9090/targets
+Скриншоты:
+![Скриншот]![Скриншот]![Скриншот](images/prometheus-config.png
+![Скриншот]![Скриншот]![Скриншот](images/prometheus-targets.png
+Заключение
+В результате выполнения домашнего задания:
+    Установлен и настроен Prometheus с автоматическим запуском через systemd.
+    Установлен и настроен Node Exporter.
+    Произведена интеграция Node Exporter в конфигурацию Prometheus.
+    Проверена работа целей в веб-интерфейсе.
+Ссылка на репозиторий:
+https://github.com/stas-lukin/prometheus-hw
+ENDOFFILE
+text
 ---
-
-### Задание 2
-
-`Приведите ответ в свободной форме........`
-
-1. `Заполните здесь этапы выполнения, если требуется ....`
-2. `Заполните здесь этапы выполнения, если требуется ....`
-3. `Заполните здесь этапы выполнения, если требуется ....`
-4. `Заполните здесь этапы выполнения, если требуется ....`
-5. `Заполните здесь этапы выполнения, если требуется ....`
-6. 
-
-```
-Поле для вставки кода...
-....
-....
-....
-....
-```
-
-`При необходимости прикрепитe сюда скриншоты
-![Название скриншота 2](ссылка на скриншот 2)`
-
-
----
-
-### Задание 3
-
-`Приведите ответ в свободной форме........`
-
-1. `Заполните здесь этапы выполнения, если требуется ....`
-2. `Заполните здесь этапы выполнения, если требуется ....`
-3. `Заполните здесь этапы выполнения, если требуется ....`
-4. `Заполните здесь этапы выполнения, если требуется ....`
-5. `Заполните здесь этапы выполнения, если требуется ....`
-6. 
-
-```
-Поле для вставки кода...
-....
-....
-....
-....
-```
-
-`При необходимости прикрепитe сюда скриншоты
-![Название скриншота](ссылка на скриншот)`
-
-### Задание 4
-
-`Приведите ответ в свободной форме........`
-
-1. `Заполните здесь этапы выполнения, если требуется ....`
-2. `Заполните здесь этапы выполнения, если требуется ....`
-3. `Заполните здесь этапы выполнения, если требуется ....`
-4. `Заполните здесь этапы выполнения, если требуется ....`
-5. `Заполните здесь этапы выполнения, если требуется ....`
-6. 
-
-```
-Поле для вставки кода...
-....
-....
-....
-....
-```
-
-`При необходимости прикрепитe сюда скриншоты
-![Название скриншота](ссылка на скриншот)`
