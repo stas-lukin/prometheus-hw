@@ -37,7 +37,7 @@
     sudo systemctl enable prometheus
     sudo systemctl status prometheus
 Скриншот:
-![Скриншот]![Скриншот]![Скриншот](images/prometheus-status.png
+![Скриншот](images/prometheus-status.png)
 Задание 2. Установка Node Exporter
 Решение:
     Скачал и распаковал Node Exporter версии 1.8.2:
@@ -65,7 +65,7 @@
     sudo systemctl enable node-exporter
     sudo systemctl status node-exporter
 Скриншот:
-![Скриншот]![Скриншот]![Скриншот](images/node-exporter-status.png
+![Скриншот](images/node-exporter-status.png)
 Задание 3. Подключение Node Exporter к Prometheus
 Решение:
     Отредактировал конфигурационный файл /etc/prometheus/prometheus.yml:
@@ -84,8 +84,8 @@
         Конфигурация: http://10.0.2.15:9090/config
         Цели: http://10.0.2.15:9090/targets
 Скриншоты:
-![Скриншот]![Скриншот]![Скриншот](images/prometheus-config.png
-![Скриншот]![Скриншот]![Скриншот](images/prometheus-targets.png
+![Скриншот](images/prometheus-config.png)
+![Скриншот](images/prometheus-targets.png)
 Заключение
 В результате выполнения домашнего задания:
     Установлен и настроен Prometheus с автоматическим запуском через systemd.
